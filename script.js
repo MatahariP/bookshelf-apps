@@ -1,5 +1,7 @@
 const bookShelf = [];
 const RENDER_EVENT = 'render-book'
+const SAVED_EVENT = 'saved-book';
+const STORAGE_KEY = 'BOOK_APPS';
 const generatedID = () => {
     return +new Date();
 }
@@ -10,6 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         addBook();
     })
+    if(isStorageExist()){
+        loadDataFromStorage();
+    }
 })
 const addBook = () =>{
     const bookTitle = document.getElementById("inputBookTitle").value;
@@ -22,6 +27,7 @@ const addBook = () =>{
     console.log(bookObject)
 
     document.dispatchEvent(new Event(RENDER_EVENT))
+    saveBook();
 
 } 
 
@@ -51,13 +57,19 @@ const showBook = (bookObject) =>{
     const buttonContainer = document.createElement('div')
     buttonContainer.classList.add('action')
     if(bookObject.isComplete){
-        
         const deleteButton = document.createElement('button')
         deleteButton.classList.add('red')
         deleteButton.innerText='Hapus Buku'
+        deleteButton.addEventListener('click', function(){
+
+        })
+
         const uncompletedButton = document.createElement('button')
         uncompletedButton.classList.add('green')
         uncompletedButton.innerText='   Selesai'
+
+
+
         buttonContainer.append(deleteButton, uncompletedButton)
     }else {
         const deleteButton = document.createElement('button')
@@ -76,10 +88,38 @@ const showBook = (bookObject) =>{
     return articleContainer;
 }
 
-// const saveBook = () =>{
 
-// }
+const isStorageExist = () =>{
+    if (typeof (Storage) === undefined) {
+        alert('Browser kamu tidak mendukung local storage');
+        return false;
+      }
+    return true;
+}
 
+const saveBook = () =>{
+    if(isStorageExist()){
+        const parsed = JSON.stringify(bookShelf);
+        localStorage.setItem(STORAGE_KEY, parsed)
+        document.dispatchEvent(new Event(SAVED_EVENT))
+    }
+    }
+
+const loadDataFromStorage = () =>{
+    const serializedData = localStorage.getItem(STORAGE_KEY);
+    let data = JSON.parse(serializedData);
+    if (data !== null) {
+      for (const book of data) {
+        bookShelf.push(book);
+      }
+    }
+   
+    document.dispatchEvent(new Event(RENDER_EVENT));
+  }
+
+  const deleteBook = (id) =>{
+    
+  }
 document.addEventListener(RENDER_EVENT, function(){
     const incomplete = document.getElementById('incompleteBookshelfList')
     const complete = document.getElementById('completeBookshelfList')
@@ -96,3 +136,9 @@ document.addEventListener(RENDER_EVENT, function(){
         }
     }
 })
+
+document.addEventListener(SAVED_EVENT, function () {
+    console.log(localStorage.getItem(STORAGE_KEY));
+    // alert(JSON.stringify(todos[0].task))
+  });
+  
