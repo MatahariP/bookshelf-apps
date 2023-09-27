@@ -50,34 +50,34 @@ const showBook = (bookObject) =>{
     bookAuthor.innerText = bookObject.author;
     const bookYear = document.createElement('p')
     bookYear.innerText = bookObject.year;
-    // const textContainer = document.createElement('div')
-    // textContainer.classList.add('book_item')
-    // textContainer.append(bookTitle,bookAuthor,bookYear)
-    // textContainer.setAttribute('id', `book-${bookObject.title}`)
+   
     const buttonContainer = document.createElement('div')
     buttonContainer.classList.add('action')
+    const deleteButton = document.createElement('button')
+    deleteButton.classList.add('red')
+    deleteButton.innerText='Hapus Buku'
+    deleteButton.addEventListener('click', function(){
+       let konfirmasi = confirm(`Apakah anda yakin ingin Menghapus buku ${bookObject.title}`)
+       if (konfirmasi) {
+           deleteBook(bookObject.id)
+       } 
+    })
     if(bookObject.isComplete){
-        const deleteButton = document.createElement('button')
-        deleteButton.classList.add('red')
-        deleteButton.innerText='Hapus Buku'
-        deleteButton.addEventListener('click', function(){
-
-        })
-
         const uncompletedButton = document.createElement('button')
         uncompletedButton.classList.add('green')
-        uncompletedButton.innerText='   Selesai'
-
-
-
+        uncompletedButton.innerText='Belum Selesai'
+        uncompletedButton.addEventListener('click', function(){
+            unfinishedBook(bookObject.id)
+        })
         buttonContainer.append(deleteButton, uncompletedButton)
     }else {
-        const deleteButton = document.createElement('button')
-        deleteButton.classList.add('red')
-        deleteButton.innerText='Hapus Buku'
+
         const completedButton = document.createElement('button')
         completedButton.classList.add('green')
-        completedButton.innerText='Belum Selesai'
+        completedButton.innerText='Selesai'
+        completedButton.addEventListener('click', function(){
+            finishedBook(bookObject.id)
+        })
         buttonContainer.append(deleteButton, completedButton)
 
     }
@@ -118,8 +118,40 @@ const loadDataFromStorage = () =>{
   }
 
   const deleteBook = (id) =>{
+    const selectedBook = findBookIndex(id)
     
+    if(selectedBook ===-1) return alert("Tidak ada Buku Tersebut")
+
+    bookShelf.splice(selectedBook,1)
+    document.dispatchEvent(new Event(RENDER_EVENT))
+    saveBook();
   }
+
+  const finishedBook = (id) => {
+    const selectedBook = findBookIndex(id)
+    if(selectedBook === null) return alert("Tidak ada Buku Tersebut")
+    bookShelf[selectedBook].isComplete = true;
+    document.dispatchEvent(new Event(RENDER_EVENT))
+    saveBook();
+  }
+
+  const unfinishedBook = (id) => {
+    const selectedBook = findBookIndex(id)
+    if(selectedBook === null) return alert("Tidak ada Buku Tersebut")
+    console.log( selectedBook)
+    bookShelf[selectedBook].isComplete= false;
+    document.dispatchEvent(new Event(RENDER_EVENT))
+    saveBook();
+  }
+  const findBookIndex=(selectedId) =>{
+    for(const index in bookShelf){
+        if(bookShelf[index].id === selectedId){
+            return index
+        }
+    } 
+  }
+
+  
 document.addEventListener(RENDER_EVENT, function(){
     const incomplete = document.getElementById('incompleteBookshelfList')
     const complete = document.getElementById('completeBookshelfList')
