@@ -1,4 +1,5 @@
 const bookShelf = [];
+let selectedBooks=[-1];
 const RENDER_EVENT = 'render-book'
 const SAVED_EVENT = 'saved-book';
 const STORAGE_KEY = 'BOOK_APPS';
@@ -8,9 +9,14 @@ const generatedID = () => {
 
 document.addEventListener('DOMContentLoaded', function() {
     const submitBook = document.getElementById('inputBook');
+    const submitSearch = document.getElementById('searchBook')
     submitBook.addEventListener('submit', function(event){
         event.preventDefault();
         addBook();
+    })
+    submitSearch.addEventListener('keyup', function(event){
+        event.preventDefault()
+        findBook();
     })
     if(isStorageExist()){
         loadDataFromStorage();
@@ -25,7 +31,7 @@ const addBook = () =>{
     const bookObject = makeObject(id, bookTitle, bookAuthor, bookYear, bookIsComplete)
     bookShelf.push(bookObject)
     console.log(bookObject)
-
+    alert(`Buku ${bookTitle} berhasil dibuat!!`)
     document.dispatchEvent(new Event(RENDER_EVENT))
     saveBook();
 
@@ -47,9 +53,9 @@ const showBook = (bookObject) =>{
     const bookTitle = document.createElement('h3')
     bookTitle.innerText = bookObject.title;
     const bookAuthor = document.createElement('p')
-    bookAuthor.innerText = bookObject.author;
+    bookAuthor.innerText = `Penulis\t = ${bookObject.author}`;
     const bookYear = document.createElement('p')
-    bookYear.innerText = bookObject.year;
+    bookYear.innerText =`Tahun\t = ${ bookObject.year}`;
    
     const buttonContainer = document.createElement('div')
     buttonContainer.classList.add('action')
@@ -151,14 +157,37 @@ const loadDataFromStorage = () =>{
     } 
   }
 
-  
+  const findBook = () => {
+    selectedBooks.length = 0;
+    const searchTittle = document.getElementById('searchBookTitle').value.toLowerCase()
+    console.log(searchTittle);
+        for(const book in bookShelf){
+            console.log(bookShelf[book].title);
+            if(bookShelf[book].title.toLowerCase().includes(searchTittle)){
+                console.log("tes");
+                console.log(bookShelf[book]);
+                selectedBooks.push(bookShelf[book])
+            }
+        }
+       
+    document.dispatchEvent(new Event(RENDER_EVENT))
+        console.log("hasil ini");
+        console.log(selectedBooks);
+    }
+    
+
 document.addEventListener(RENDER_EVENT, function(){
     const incomplete = document.getElementById('incompleteBookshelfList')
     const complete = document.getElementById('completeBookshelfList')
+    let books = bookShelf;
+    console.log(bookShelf);
+    console.log(selectedBooks);
     incomplete.innerHTML ='';
     complete.innerHTML ='';
-    console.log(bookShelf)
-    for(const book of bookShelf){
+    if(selectedBooks[0] != -1){
+        books = selectedBooks
+    }
+    for(const book of books){
         console.log("loop")
         const bookElement = showBook(book)
         if(book.isComplete){
