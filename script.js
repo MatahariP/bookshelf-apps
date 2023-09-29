@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
 const addBook = () =>{
     const bookTitle = document.getElementById("inputBookTitle").value;
     const bookAuthor = document.getElementById("inputBookAuthor").value;
-    const bookYear = document.getElementById("inputBookYear").value;
+    const bookYear = parseInt(document.getElementById("inputBookYear").value);
     const bookIsComplete = document.getElementById("inputBookIsComplete").checked;
     const id = generatedID();
     const bookObject = makeObject(id, bookTitle, bookAuthor, bookYear, bookIsComplete)
@@ -114,6 +114,7 @@ const loadDataFromStorage = () =>{
     let data = JSON.parse(serializedData);
     if (data !== null) {
       for (const book of data) {
+        book.year = parseInt(book.year, 10);
         bookShelf.push(book);
       }
     }
